@@ -1,0 +1,78 @@
+server:
+  port: 8080
+
+spring:
+  webflux:
+    multipart:
+      enabled: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  cloud:
+    discovery:
+      enabled: false
+    loadbalancer:
+      enabled: false
+    gateway:
+      httpclient:
+        multipart:
+          enabled: true
+
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: file-storage
+          uri: http://file-storage:8081  # Прямое указание URL
+          predicates:
+            - Path=/api/files/**
+
+        - id: file-analysis
+          uri: http://file-analysis:8082
+          predicates:
+            - Path=/api/analysis/**
+
+
+
+  application:
+    name: api-gateway
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: File Storage API
+        url: /v3/api-docs/file-storage
+      - name: File Analysis API
+        url: /v3/api-docs/file-analysis
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.http.codec: DEBUG
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      fileStorage:
+        register-health-indicator: true
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+      fileAnalysis:
+        register-health-indicator: true
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 2000
+        read-timeout: 5000
+  circuitbreaker:
+    enabled: true

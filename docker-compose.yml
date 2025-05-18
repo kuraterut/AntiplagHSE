@@ -1,0 +1,71 @@
+version: '3'
+services:
+  api-gateway:
+    build: ./ApiGateway
+    ports: ["8080:8080"]
+    depends_on: [file-storage]
+    environment:
+      SPRING_CLOUD_GATEWAY_HTTPCLIENT_MULTIPART_ENABLED: "true"
+    networks:
+      - default
+
+
+  file-storage:
+    build: ./FileStorageService
+    ports: ["8081:8081"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/storage
+    depends_on: [postgres]
+    volumes:
+      - file-storage:/file-storage/uploads
+    networks:
+      - default
+
+
+
+  file-analysis:
+    build: ./FileAnalysisService
+    ports: ["8082:8082"]
+    depends_on: [postgres]
+    volumes:
+      - wordcloud-storage:/file-analysis/wordclouds
+    networks:
+      - default
+
+
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: storage
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    networks:
+      - default
+
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.0.1
+#    environment: { ZOOKEEPER_CLIENT_PORT: 2181 }
+#    networks:
+#      - default
+#
+#  kafka:
+#    image: confluentinc/cp-kafka:7.0.1
+#    depends_on: [zookeeper]
+#    environment:
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+#    networks:
+#      - default
+
+volumes:
+  postgres-data:
+  file-storage:
+  wordcloud-storage:
+
+networks:
+  default:
+    driver: bridge
