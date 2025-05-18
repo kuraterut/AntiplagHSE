@@ -1,0 +1,126 @@
+{
+	"info": {
+		"_postman_id": "567252c9-1a81-40c8-9785-f257105fde48",
+		"name": "AntiplagHSE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41796391"
+	},
+	"item": [
+		{
+			"name": "Load File",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIrNzkwOTI3NjI0NjEiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3NDU4NTUzNDcsImV4cCI6MTc0NTk0MTc0N30.jbkuHlsNAN4pDMYJDOwDOaOwziaPeSSZbZVB6AsUacc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/kuraterut/Desktop/HSE/MyOwnProjects/JavaProjects/AntiplagHSE/test/1.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/files",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"files"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get File By ID",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/files/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"files",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get analysis",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/analysis/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"analysis",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get wordcloud",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/analysis/wordcloud/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"analysis",
+						"wordcloud",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
