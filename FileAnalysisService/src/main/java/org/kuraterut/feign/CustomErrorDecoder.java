@@ -11,7 +11,6 @@ public class CustomErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
-        // Обрабатываем специфичные статусы
         if (response.status() == 404) {
             return new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
@@ -26,7 +25,6 @@ public class CustomErrorDecoder implements ErrorDecoder {
             );
         }
 
-        // Для остальных ошибок используем стандартный обработчик
         return defaultDecoder.decode(methodKey, response);
     }
 }

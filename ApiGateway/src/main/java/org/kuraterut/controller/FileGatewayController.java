@@ -1,5 +1,8 @@
 package org.kuraterut.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.kuraterut.dto.AnalysisResultResponse;
 import org.kuraterut.dto.FileMetadataResponse;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "File Storage and Analysis Controller", description = "Gateway for API")
 public class FileGatewayController {
 
     private final WebClient fileStorageClient;
@@ -27,6 +31,11 @@ public class FileGatewayController {
     }
 
     @GetMapping("/files/{id}")
+    @Operation(summary = "Get File by ID", description = "Get file content by file ID")
+    @ApiResponse(responseCode = "200", description = "Get file content")
+    @ApiResponse(responseCode = "404", description = "File not found by ID")
+    @ApiResponse(responseCode = "503", description = "File storage is unavailable")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     public Mono<ResponseEntity<String>> getFileById(@PathVariable("id") Long id) {
         return fileStorageClient.get()
                 .uri("/api/files/" + id)
@@ -56,6 +65,10 @@ public class FileGatewayController {
     }
 
     @PostMapping(path = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload file", description = "Upload file and return file info")
+    @ApiResponse(responseCode = "200", description = "File info (id, location etc.)")
+    @ApiResponse(responseCode = "503", description = "File storage is unavailable")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     public Mono<ResponseEntity> uploadFile(@RequestPart("file") FilePart filePart) {
         return fileStorageClient.post()
                 .uri("/api/files")
@@ -71,8 +84,8 @@ public class FileGatewayController {
                                 .flatMap(error -> Mono.error(new ResponseStatusException(clientResponse.statusCode(), error)))
                 )
                 .bodyToMono(FileMetadataResponse.class)
-                .map(fileMetadata -> ResponseEntity.ok().body(fileMetadata)) // ResponseEntity<?>
-                .cast(ResponseEntity.class) // <-- приводит к ResponseEntity<?>
+                .map(fileMetadata -> ResponseEntity.ok().body(fileMetadata))
+                .cast(ResponseEntity.class)
                 .onErrorResume(WebClientRequestException.class, e ->
                         Mono.just(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                                 .body((Object) ("FileStorage service is unavailable: " + e.getMessage())))
@@ -89,6 +102,11 @@ public class FileGatewayController {
 
 
     @GetMapping("/analysis/{fileId}")
+    @Operation(summary = "Get Analysis result", description = "Get analysis result about file by ID")
+    @ApiResponse(responseCode = "200", description = "File analysis result")
+    @ApiResponse(responseCode = "404", description = "File not found by ID")
+    @ApiResponse(responseCode = "503", description = "File storage or analysis is unavailable")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     public Mono<ResponseEntity> getAnalysisResult(@PathVariable("fileId") Long fileId) {
         return fileAnalysisClient.get()
                 .uri("/api/analysis/" + fileId)
@@ -119,6 +137,11 @@ public class FileGatewayController {
     }
 
     @GetMapping("/analysis/wordcloud/{fileId}")
+    @Operation(summary = "Get Wordcloud Image", description = "Get Wordcloud Image of file content by ID")
+    @ApiResponse(responseCode = "200", description = "Wordcloud image")
+    @ApiResponse(responseCode = "404", description = "Image not found")
+    @ApiResponse(responseCode = "503", description = "File analysis is unavailable")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     public Mono<ResponseEntity> getWordCloudImage(@PathVariable("fileId") Long fileId) {
         return fileAnalysisClient.get()
                 .uri("/api/analysis/wordcloud/" + fileId)

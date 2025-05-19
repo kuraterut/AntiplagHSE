@@ -25,8 +25,8 @@ import java.nio.file.Paths;
 @Slf4j
 public class AnalysisService {
     private final AnalysisResultRepository repository;
-    private final FileStorageClient storageClient;  // Feign-клиент к file-storage-service
-    private final WordCloudService wordCloudService; // Feign-клиент к wordcloudapi.com
+    private final FileStorageClient storageClient;
+    private final WordCloudService wordCloudService;
 
     @Value("${wordcloud.output.dir}")
     private String wordCloudStoragePath;
@@ -34,7 +34,6 @@ public class AnalysisService {
     @CircuitBreaker(name = "fileStorage", fallbackMethod = "analyzeFileFallback")
     @Retry(name = "fileStorage")
     public AnalysisResult analyzeFile(Long fileId) throws IOException {
-        // 1. Получаем файл из file-storage-service
         ResponseEntity<byte[]> fileContent = storageClient.getFile(fileId);
         if (fileContent.getStatusCode() == HttpStatusCode.valueOf(503)) {
             throw new FeignException("Service is unavailable");
@@ -45,18 +44,15 @@ public class AnalysisService {
         assert fileContent != null;
         String text = new String(fileContent.getBody());
 
-        // 2. Подсчёт статистики
         int charCount = text.length();
         int wordCount = text.split("\\s+").length;
         int paragraphCount = text.split("\n\n").length;
 
         byte[] wordCloud = wordCloudService.generateWordCloud(text);
 
-        // 3. Сохраняем изображение в volume
         String filename = "wordcloud_" + fileId + ".png";
         Path outputPath = saveWordCloudImage(wordCloud, filename);
 
-        // 4. Сохранение результата
         AnalysisResult result = new AnalysisResult();
         result.setFileId(fileId);
         result.setCharCount(charCount);
@@ -94,13 +90,11 @@ public class AnalysisService {
     }
 
     private Path saveWordCloudImage(byte[] imageBytes, String filename) throws IOException {
-        // Создаем директорию, если ее нет
         Path storagePath = Paths.get(wordCloudStoragePath);
         if (!Files.exists(storagePath)) {
             Files.createDirectories(storagePath);
         }
 
-        // Сохраняем файл
         Path outputPath = storagePath.resolve(filename);
         Files.write(outputPath, imageBytes);
 

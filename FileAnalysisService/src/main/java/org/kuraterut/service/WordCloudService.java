@@ -37,7 +37,6 @@ public class WordCloudService {
 
     public byte[] generateWordCloud(String text) {
         try {
-            // Создаем JSON запрос
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("text", text);
             requestBody.put("width", 800);
@@ -46,17 +45,14 @@ public class WordCloudService {
             requestBody.put("removeStopwords", true);
             requestBody.put("maxWords", 100);
 
-            // Устанавливаем заголовки
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // Формируем запрос
             HttpEntity<String> request = new HttpEntity<>(
                     objectMapper.writeValueAsString(requestBody),
                     headers
             );
 
-            // Отправляем запрос
             ResponseEntity<byte[]> response = restTemplate.postForEntity(
                     QUICKCHART_API,
                     request,
