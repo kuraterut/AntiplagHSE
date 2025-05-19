@@ -4,19 +4,17 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.kuraterut.dto.AnalysisRequest;
 import org.kuraterut.exception.FeignException;
+import org.kuraterut.exception.FileNotFoundException;
 import org.kuraterut.feign.FileStorageClient;
-import org.kuraterut.feign.WordCloudClient;
 import org.kuraterut.model.AnalysisResult;
 import org.kuraterut.repository.AnalysisResultRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,6 +38,9 @@ public class AnalysisService {
         ResponseEntity<byte[]> fileContent = storageClient.getFile(fileId);
         if (fileContent.getStatusCode() == HttpStatusCode.valueOf(503)) {
             throw new FeignException("Service is unavailable");
+        }
+        else if (fileContent.getStatusCode().is4xxClientError()){
+            throw new org.kuraterut.exception.FileNotFoundException("File not found with id " + fileId);
         }
         assert fileContent != null;
         String text = new String(fileContent.getBody());
@@ -68,7 +69,17 @@ public class AnalysisService {
 
     public AnalysisResult analyzeFileFallback(Long fileId, Exception e) {
         log.warn("Using fallback for file analysis, fileId: {}", fileId, e);
-        throw new FeignException("Service is unavailable");
+        if (e instanceof ResponseStatusException) {
+            ResponseStatusException responseStatusException = (ResponseStatusException) e;
+            if(responseStatusException.getStatusCode().is4xxClientError()){
+                throw new org.kuraterut.exception.FileNotFoundException("File not found with id " + fileId);
+            }
+            else if (responseStatusException.getStatusCode().is5xxServerError()){
+                throw new FeignException(e.getMessage());
+            }
+            throw new RuntimeException("File storage exception", e);
+        }
+        throw new FeignException(e.getMessage());
     }
 
     public byte[] getWordCloudImage(Long fileId) throws IOException {

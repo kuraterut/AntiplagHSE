@@ -47,9 +47,16 @@
             <artifactId>resilience4j-spring-boot3</artifactId>
             <version>2.1.0</version> <!-- Актуальная версия -->
         </dependency>
+        <!-- Основная зависимость для Circuit Breaker в Gateway -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
+            <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+        </dependency>
+
+        <!-- Дополнительно, если нужно (для мониторинга) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <!-- Логирование -->

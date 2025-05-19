@@ -1,18 +1,13 @@
 package org.kuraterut.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.kuraterut.dto.AnalysisRequest;
 import org.kuraterut.model.AnalysisResult;
 import org.kuraterut.service.AnalysisService;
-import org.kuraterut.service.WordCloudService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/analysis")

@@ -3,6 +3,7 @@ package org.kuraterut.service;
 import lombok.RequiredArgsConstructor;
 import org.kuraterut.exception.CalculatingFileHashException;
 import org.kuraterut.exception.FileNotFoundException;
+import org.kuraterut.dto.FileMetadataResponse;
 import org.kuraterut.model.FileMetadata;
 import org.kuraterut.repository.FileMetadataRepository;
 import org.springframework.beans.factory.annotation.Value;

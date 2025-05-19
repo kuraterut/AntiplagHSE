@@ -17,22 +17,6 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler extends DefaultErrorAttributes {
 
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<ErrorResponse> handleFeignException(FeignException ex) {
-        ErrorResponse error = new ErrorResponse(
-                "SERVICE_UNAVAILABLE",
-                "Backend service is unavailable: " + ex.getMessage()
-        );
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class ErrorResponse {
-        private String code;
-        private String message;
-    }
-
     @Override
     public Map<String, Object> getErrorAttributes(
             ServerRequest request,

@@ -1,8 +1,8 @@
 package org.kuraterut.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.kuraterut.dto.FileMetadataResponse;
 import org.kuraterut.model.FileMetadata;
 import org.kuraterut.service.FileStorageService;
 import org.springframework.http.MediaType;
